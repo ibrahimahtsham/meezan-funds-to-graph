@@ -13,7 +13,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="2" (
     echo Deploying the project to GitHub Pages...
     npm run build
-    gh-pages -d dist
+    npx gh-pages -d dist
 ) else (
     echo Invalid choice! Please choose 1 or 2.
 )
