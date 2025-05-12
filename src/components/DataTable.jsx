@@ -1,40 +1,69 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import db from "../firebaseConfig";
+import { fetchInvestments, updateInvestment } from "../utils/investmentService";
+import { fundPlansMapping, categoryOptions } from "../config/fundMapping";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
-function DataTable() {
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
   const columns = [
     { field: "id", headerName: "ID", width: 100, editable: false },
-    { field: "category", headerName: "Category", width: 200, editable: true },
-    { field: "fund", headerName: "Fund/Plan", width: 300, editable: true },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 250,
+      editable: true,
+      type: "singleSelect",
+      valueOptions: categoryOptions,
+    },
+    {
+      field: "fund",
+      headerName: "Fund/Plan",
+      width: 350,
+      editable: true,
+      renderEditCell: (params) => {
+        const { id, value, row } = params;
+        const options = fundPlansMapping[row.category] || [];
+        return (
+          <Select
+            value={value || ""}
+            onChange={(event) => {
+              params.api.setEditCellValue(
+                { id, field: params.field, value: event.target.value },
+                event
+              );
+            }}
+            fullWidth
+          >
+            {options.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+        );
+      },
+    },
+    { field: "amount", headerName: "Amount (RS)", width: 150, editable: true },
+    { field: "month", headerName: "Month", width: 150, editable: true },
   ];
 
-  // Fetch data from Firestore
   useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "investments"));
-      const data = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const getData = async () => {
+      const data = await fetchInvestments();
       setRows(data);
       setLoading(false);
+      if (onDataUpdate) onDataUpdate(data);
     };
-    fetchData();
-  }, []);
+    getData();
+  }, [onDataUpdate, setRows, setLoading]);
 
-  // Handle cell edit
   const handleProcessRowUpdate = async (newRow) => {
-    const updatedRow = { ...newRow };
-    const docRef = doc(db, "investments", newRow.id);
-    await updateDoc(docRef, {
-      category: newRow.category,
-      fund: newRow.fund,
-    });
+    const updatedRow = await updateInvestment(newRow);
+    const updatedRows = rows.map((row) =>
+      row.id === updatedRow.id ? updatedRow : row
+    );
+    if (onDataUpdate) onDataUpdate(updatedRows);
     return updatedRow;
   };
 
