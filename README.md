@@ -20,19 +20,18 @@ Meezan Funds to Graph is a web-based application designed to parse and visualize
 
 ### NAV Performance
 
-![NAV Performance](./screenshots/nav-performance.png)
+![image](https://github.com/user-attachments/assets/e4a92763-fbb7-4609-acce-b529b605c2d1)
 
-### Investment Trends by Category (Month Wise)
 
-![Investment Trends by Category](./screenshots/investment-trends-category.png)
+### Investment Tracking
 
-### Total Investment Trends (Month Wise)
+![image](https://github.com/user-attachments/assets/cc6e77b6-0699-4a3b-894e-5cd34e41669a)
 
-![Total Investment Trends](./screenshots/total-investment-trends.png)
 
 ### Projections Chart (Based on Performance NAV)
 
-![Projections Chart](./screenshots/projections-chart.png)
+![image](https://github.com/user-attachments/assets/b93e4c64-dafc-4033-8c02-aa5204f7372d)
+
 
 ## Technologies Used
 
