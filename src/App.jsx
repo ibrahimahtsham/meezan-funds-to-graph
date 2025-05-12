@@ -1,24 +1,49 @@
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import {
-  AppBar,
-  Button,
   Container,
   createTheme,
   CssBaseline,
-  IconButton,
   ThemeProvider,
-  Toolbar,
-  Typography,
 } from "@mui/material";
-import { useMemo, useState } from "react";
-import { Link, Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import AuthForm from "./components/AuthForm"; // <-- Added AuthForm import
-import GraphPage from "./pages/GraphPage";
-import InvestmentsTracker from "./pages/InvestmentsTracker";
+import {
+  browserLocalPersistence,
+  onAuthStateChanged,
+  setPersistence,
+} from "firebase/auth";
+import { useEffect, useMemo, useState } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import Header from "./components/Header";
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import { auth } from "./firebaseConfig";
+import AuthPage from "./pages/AuthPage";
+import { logOut } from "./utils/auth";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    setPersistence(auth, browserLocalPersistence);
+  }, []);
+
+  // Listen for auth state and enforce a 1-day login limit.
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const ts = localStorage.getItem("loginTimestamp");
+        if (ts && Date.now() - parseInt(ts, 10) > 86400000) {
+          logOut().then(() => {
+            localStorage.removeItem("loginTimestamp");
+            setCurrentUser(null);
+          });
+        } else {
+          setCurrentUser(user);
+        }
+      } else {
+        setCurrentUser(null);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const theme = useMemo(
     () =>
@@ -32,39 +57,24 @@ function App() {
     [darkMode]
   );
 
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
-  };
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Meezan Funds Dashboard
-            </Typography>
-            <IconButton color="inherit" onClick={toggleDarkMode}>
-              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-            </IconButton>
-            <Button color="inherit" component={Link} to="/">
-              GraphPage
-            </Button>
-            <Button color="inherit" component={Link} to="/investments">
-              Investments Tracker
-            </Button>
-            <Button color="inherit" component={Link} to="/auth">
-              Auth
-            </Button>
-          </Toolbar>
-        </AppBar>
+        <Header
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+          currentUser={currentUser}
+        />
         <Container sx={{ mt: 2 }}>
           <Routes>
-            <Route path="/" element={<GraphPage />} />
-            <Route path="/investments" element={<InvestmentsTracker />} />
-            <Route path="/auth" element={<AuthForm />} />
-            <Route path="*" element={<div>404 Not Found</div>} />
+            {currentUser ? (
+              <Route path="/*" element={<ProtectedRoutes />} />
+            ) : (
+              <Route path="/*" element={<AuthPage />} />
+            )}
           </Routes>
         </Container>
       </Router>
