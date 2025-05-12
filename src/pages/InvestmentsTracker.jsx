@@ -1,14 +1,22 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import AddInvestmentButton from "../components/AddInvestmentButton";
 import DataTable from "../components/DataTable";
+import FileUploader from "../components/FileUploader";
 import LineChart from "../components/LineChart";
 import { aggregateInvestmentByCategoryAndMonth } from "../utils/aggregateInvestmentByCategoryAndMonth";
+import { aggregateTotalInvestmentByMonth } from "../utils/aggregateTotalInvestmentByMonth";
+import { calculateInvestmentProjections } from "../utils/calculateProjections";
 import { addInvestment, fetchInvestments } from "../utils/investmentService";
+import { parseChartData } from "../utils/parseData";
 
 function InvestmentsTracker() {
   const [investmentData, setInvestmentData] = useState([]);
   const [loading, setLoading] = useState(true);
+  // State for projection file content
+  const [fileContent, setFileContent] = useState(null);
+  // Toggle file uploader display
+  const [showUploader, setShowUploader] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,8 +39,17 @@ function InvestmentsTracker() {
     setInvestmentData((prev) => [...prev, added]);
   };
 
-  // Aggregate data by category and month.
-  const chartData = aggregateInvestmentByCategoryAndMonth(investmentData);
+  // Aggregated current investments:
+  const categoryChartData =
+    aggregateInvestmentByCategoryAndMonth(investmentData);
+  const totalChartData = aggregateTotalInvestmentByMonth(investmentData);
+  // Parse performance data from file:
+  const performanceSeries = fileContent ? parseChartData(fileContent) : [];
+  // Calculate projections using your investments and the performance data.
+  const projectionData =
+    performanceSeries.length > 0
+      ? calculateInvestmentProjections(investmentData, performanceSeries)
+      : null;
 
   return (
     <Container>
@@ -44,12 +61,33 @@ function InvestmentsTracker() {
           Edit and track your investments dynamically.
         </Typography>
       </Box>
+
+      {/* Upload Projection File Section */}
+      <Box sx={{ my: 4 }}>
+        <Button
+          variant="contained"
+          onClick={() => setShowUploader(!showUploader)}
+        >
+          {showUploader ? "Hide File Uploader" : "Upload Projection File"}
+        </Button>
+        {showUploader && (
+          <FileUploader
+            onDataParsed={(data) => {
+              if (data?.content) {
+                setFileContent(data.content);
+              }
+            }}
+          />
+        )}
+      </Box>
+
       <Box sx={{ my: 4 }}>
         <AddInvestmentButton
           onAddDefault={handleAddDefault}
           onAddManual={handleAddManual}
         />
       </Box>
+
       <Box sx={{ my: 4 }}>
         <DataTable
           onDataUpdate={setInvestmentData}
@@ -59,16 +97,37 @@ function InvestmentsTracker() {
           setLoading={setLoading}
         />
       </Box>
+
       <Box sx={{ my: 4 }}>
         <Typography variant="h5" gutterBottom>
-          Investment Trends (by Category & Month)
+          Investment Trends by Category (Month Wise)
         </Typography>
         {investmentData.length ? (
-          <LineChart data={chartData} height={600} />
+          <LineChart data={categoryChartData} height={600} />
         ) : (
           <Typography variant="body1">No investment data available.</Typography>
         )}
       </Box>
+
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Total Investment Trends (Month Wise)
+        </Typography>
+        {investmentData.length ? (
+          <LineChart data={totalChartData} height={600} />
+        ) : (
+          <Typography variant="body1">No investment data available.</Typography>
+        )}
+      </Box>
+
+      {projectionData && (
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Projection Chart
+          </Typography>
+          <LineChart data={projectionData} height={600} />
+        </Box>
+      )}
     </Container>
   );
 }
