@@ -1,13 +1,17 @@
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import { useTheme } from "@mui/material/styles";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect } from "react";
 import { categoryOptions, fundPlansMapping } from "../config/fundMapping";
-import { fetchInvestments, updateInvestment } from "../utils/investmentService";
+import {
+  deleteInvestment,
+  fetchInvestments,
+  updateInvestment,
+} from "../utils/investmentService";
 
-// This DataTable component uses the shared Firebase investments collection
-// via the fetchInvestments and updateInvestment functions.
 function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
   const theme = useTheme();
 
@@ -58,7 +62,6 @@ function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
       editable: true,
       type: "boolean",
       renderCell: (params) => {
-        // Use theme colors so that they adapt to dark/light mode.
         const bgColor = params.value
           ? theme.palette.success.light
           : theme.palette.error.light;
@@ -96,9 +99,31 @@ function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
         );
       },
     },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      renderCell: (params) => {
+        return (
+          <IconButton onClick={() => handleDelete(params.row.id)}>
+            <DeleteIcon color="error" />
+          </IconButton>
+        );
+      },
+    },
   ];
 
-  // Fetch investments from the shared Firebase collection.
+  const handleDelete = async (id) => {
+    try {
+      await deleteInvestment(id);
+      const updatedRows = rows.filter((row) => row.id !== id);
+      setRows(updatedRows);
+      if (onDataUpdate) onDataUpdate(updatedRows);
+    } catch (error) {
+      console.error("Error deleting investment:", error);
+    }
+  };
+
   useEffect(() => {
     const getData = async () => {
       const data = await fetchInvestments();
@@ -109,7 +134,6 @@ function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
     getData();
   }, [onDataUpdate, setRows, setLoading]);
 
-  // When a row is updated, use updateInvestment to update the same record in Firebase.
   const handleProcessRowUpdate = async (newRow) => {
     const updatedRow = await updateInvestment(newRow);
     const updatedRows = rows.map((row) =>

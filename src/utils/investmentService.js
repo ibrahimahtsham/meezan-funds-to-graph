@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   updateDoc,
@@ -30,4 +31,9 @@ export async function updateInvestment(newRow) {
 export async function addInvestment(newRow) {
   const docRef = await addDoc(collection(db, "investments"), newRow);
   return { id: docRef.id, ...newRow };
+}
+
+export async function deleteInvestment(id) {
+  const docRef = doc(db, "investments", id);
+  await deleteDoc(docRef);
 }

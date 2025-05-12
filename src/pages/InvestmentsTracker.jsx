@@ -51,6 +51,16 @@ function InvestmentsTracker() {
       ? calculateInvestmentProjections(investmentData, performanceSeries)
       : null;
 
+  // Calculate total amounts based on completed status:
+  const totalCompleted = investmentData.reduce(
+    (sum, inv) => (inv.completed ? sum + Number(inv.amount) : sum),
+    0
+  );
+  const totalPending = investmentData.reduce(
+    (sum, inv) => (!inv.completed ? sum + Number(inv.amount) : sum),
+    0
+  );
+
   return (
     <Container>
       <Box sx={{ mt: 4 }}>
@@ -96,6 +106,19 @@ function InvestmentsTracker() {
           loading={loading}
           setLoading={setLoading}
         />
+      </Box>
+
+      {/* Total Investments Section */}
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Investment Totals
+        </Typography>
+        <Typography variant="body1">
+          Total Completed Investments: Rs {totalCompleted}
+        </Typography>
+        <Typography variant="body1">
+          Total Pending Investments: Rs {totalPending}
+        </Typography>
       </Box>
 
       <Box sx={{ my: 4 }}>

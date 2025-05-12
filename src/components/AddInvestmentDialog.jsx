@@ -95,22 +95,7 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
         {
           category: "Shariah Compliant Money Market",
           fund: "Meezan Cash Fund",
-          amount: 1500,
-          month: "May 2025",
-          completed: false,
-        },
-        {
-          category: "Shariah Compliant Money Market",
-          fund: "Meezan Cash Fund",
-          amount: 1500,
-          month: "May 2025",
-          completed: false,
-        },
-        // High-Risk (10% - 1,500 RS)
-        {
-          category: "Shariah Compliant Equity",
-          fund: "Meezan Gold Fund",
-          amount: 1500,
+          amount: 3000,
           month: "May 2025",
           completed: false,
         },
@@ -193,10 +178,7 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
               {"\n"} - 2,500 RS: Meezan Balanced Fund
               {"\n"} - 2,000 RS: Meezan Islamic Income Fund
               {"\n\n"}Short-Term (20% - 3,000 RS):
-              {"\n"} - 1,500 RS: Meezan Cash Fund
-              {"\n"} - 1,500 RS: Meezan Cash Fund
-              {"\n\n"}High-Risk (10% - 1,500 RS):
-              {"\n"} - 1,500 RS: Meezan Gold Fund
+              {"\n"} - 3,000 RS: Meezan Cash Fund
             </Typography>
           </Box>
         )}
