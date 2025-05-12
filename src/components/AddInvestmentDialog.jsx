@@ -42,15 +42,17 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
   const handleSubmit = () => {
     if (mode === "manual") {
       if (!amount) return;
+      // In manual mode, we add the new investment with a default "completed" status of false.
       onAddManual({
         category: selectedCategory,
         fund: selectedFund,
         amount: parseFloat(amount),
         month: "May 2025", // Default month, can be made dynamic
+        completed: false, // New field to track status
       });
     } else {
       // Default mode: use a preset breakdown.
-      // This breakdown follows your given logic.
+      // Each investment will follow the same database structure with a "completed" field.
       const defaults = [
         // Long-Term Growth (40% - 6,000 RS)
         {
@@ -58,18 +60,21 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
           fund: "Al Meezan Mutual Fund",
           amount: 3000,
           month: "May 2025",
+          completed: false,
         },
         {
           category: "Shariah Compliant Index Tracker",
           fund: "KSE Meezan Index Fund",
           amount: 2000,
           month: "May 2025",
+          completed: false,
         },
         {
           category: "Shariah Compliant Asset Allocation",
           fund: "Meezan Asset Allocation Fund",
           amount: 1000,
           month: "May 2025",
+          completed: false,
         },
         // Medium-Term (30% - 4,500 RS)
         {
@@ -77,12 +82,14 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
           fund: "Meezan Balanced Fund",
           amount: 2500,
           month: "May 2025",
+          completed: false,
         },
         {
           category: "Shariah Compliant Income",
           fund: "Meezan Islamic Income Fund",
           amount: 2000,
           month: "May 2025",
+          completed: false,
         },
         // Short-Term (20% - 3,000 RS)
         {
@@ -90,12 +97,14 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
           fund: "Meezan Cash Fund",
           amount: 1500,
           month: "May 2025",
+          completed: false,
         },
         {
           category: "Shariah Compliant Money Market",
           fund: "Meezan Cash Fund",
           amount: 1500,
           month: "May 2025",
+          completed: false,
         },
         // High-Risk (10% - 1,500 RS)
         {
@@ -103,6 +112,7 @@ function AddInvestmentDialog({ open, onClose, onAddDefault, onAddManual }) {
           fund: "Meezan Gold Fund",
           amount: 1500,
           month: "May 2025",
+          completed: false,
         },
       ];
       onAddDefault(defaults);

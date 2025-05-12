@@ -6,6 +6,8 @@ import { useEffect } from "react";
 import { categoryOptions, fundPlansMapping } from "../config/fundMapping";
 import { fetchInvestments, updateInvestment } from "../utils/investmentService";
 
+// This DataTable component uses the shared Firebase investments collection
+// via the fetchInvestments and updateInvestment functions.
 function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
   const theme = useTheme();
 
@@ -96,6 +98,7 @@ function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
     },
   ];
 
+  // Fetch investments from the shared Firebase collection.
   useEffect(() => {
     const getData = async () => {
       const data = await fetchInvestments();
@@ -106,6 +109,7 @@ function DataTable({ onDataUpdate, rows, setRows, loading, setLoading }) {
     getData();
   }, [onDataUpdate, setRows, setLoading]);
 
+  // When a row is updated, use updateInvestment to update the same record in Firebase.
   const handleProcessRowUpdate = async (newRow) => {
     const updatedRow = await updateInvestment(newRow);
     const updatedRows = rows.map((row) =>

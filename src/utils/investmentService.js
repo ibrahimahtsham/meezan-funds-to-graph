@@ -22,6 +22,7 @@ export async function updateInvestment(newRow) {
     fund: newRow.fund,
     amount: newRow.amount,
     month: newRow.month,
+    completed: newRow.completed,
   });
   return newRow;
 }
