@@ -1,10 +1,10 @@
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { useState } from "react";
+import FileUploader from "../components/FileUploader";
+import LineChart from "../components/LineChart";
 import { parseChartData } from "../utils/parseData";
-import FileUploader from "./FileUploader";
-import LineChart from "./LineChart";
 
-function Dashboard() {
+function GraphPage() {
   const [fileData, setFileData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -57,4 +57,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default GraphPage;
